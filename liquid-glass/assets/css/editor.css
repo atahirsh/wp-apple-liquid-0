@@ -1,0 +1,46 @@
+/* ==========================================================================
+ * Liquid Glass — Editor styles (canvas only)
+ * Registered via add_editor_style(); loaded inside the iframe so the token
+ * cascade applies. Keeps the editing surface visually close to the front end
+ * without touching WP admin chrome outside the canvas.
+ * ========================================================================== */
+
+/* The canvas body gets the same base as the theme frontend. */
+body {
+	background-color: var(--page-background);
+	color: var(--text-primary);
+}
+
+/* Ambient illumination behind content, matching the .lg-ambient layer. */
+.block-editor-layout:before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background:
+		radial-gradient(60rem 40rem at 8% -10%, var(--ambient-a), transparent 60%),
+		radial-gradient(50rem 36rem at 100% 8%, var(--ambient-b), transparent 60%),
+		radial-gradient(70rem 46rem at 50% 110%, var(--ambient-c), transparent 65%);
+}
+
+/* Selected-block affordance that matches the glass language. */
+:block {
+	outline-offset: 2px;
+}
+
+/* Show the real page background behind wide/full alignments in the editor. */
+.editor-styles-wrapper .block-editor-block-list__layout {
+	padding-inline: 0;
+}
+
+/* Make block appender spacing feel like front-end rhythm. */
+.editor-styles-wrapper .entry-content > * {
+	margin-block-start: 0;
+}
+
+/* Subtle hint for pattern previews of glass cards. */
+.editor-styles-wrapper .glass-surface,
+.editor-styles-wrapper .glass-card {
+	border-radius: var(--glass-radius-lg);
+}

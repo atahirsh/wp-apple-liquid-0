@@ -1,0 +1,25 @@
+/*
+Theme Name: Liquid Glass
+Theme URI: https://example.com/liquid-glass
+Author: Liquid Glass Theme Authors
+Author URI: https://example.com
+Description: A production-ready WordPress block theme inspired by Apple's Liquid Glass visual language. Translucent layered surfaces, restrained depth, system typography, full dark mode, WCAG 2.2 AA accessibility, and native Gutenberg integration with zero external dependencies.
+Version: 1.0.0
+Requires at least: 6.4
+Tested up to: 6.6
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: liquid-glass
+Tags: block-styles, full-site-editing, dark-mode, translation-ready, custom-colors, custom-logo, wide-blocks, featured-images, threaded-comments
+*/
+
+/*
+ * This stylesheet only contains the theme header required by WordPress.
+ * All actual styles are enqueued from:
+ *   assets/css/tokens.css      - design tokens (CSS custom properties)
+ *   assets/css/base.css        - reset, typography, layout primitives
+ *   assets/css/components.css  - glass components, buttons, cards, forms...
+ *   assets/css/blocks.css      - front-end styling for core Gutenberg blocks
+ *   assets/css/editor.css      - editor-only overrides (registered via editorStyle)
+ */

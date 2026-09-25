@@ -1,0 +1,1354 @@
+/* ==========================================================================
+ * Liquid Glass — Components
+ * --------------------------------------------------------------------------
+ * Component architecture (each class has one clear job):
+ *   .glass-surface     base material used by every translucent element
+ *   .glass-card        L2 content surface (hoverable variant available)
+ *   .glass-panel       larger L2 container (sidebar, comments, widgets)
+ *   .glass-control     L3 interactive control (input, select, small button)
+ *   .glass-button      L3 action (primary / secondary / ghost variants)
+ *   .glass-header      L4 sticky navigation chrome
+ *   .glass-navigation  menu + dropdown surfaces
+ *   .glass-overlay     scrim behind dialogs / mobile drawer
+ *   .glass-modal       L5 dialog surface
+ * ========================================================================== */
+
+/* --------------------------------------------------------------------------
+ * 1. The material
+ *    Progressive enhancement: the solid rgba() background always renders;
+ *    blur + saturation are added only when backdrop-filter is supported.
+ *    @supports NOT blocks also raise opacity for non-blur browsers so text
+ *    contrast never depends on the filter.
+ * ------------------------------------------------------------------------ */
+.glass-surface {
+	position: relative;
+	background-color: var(--glass-background);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius-lg);
+	box-shadow: var(--glass-shadow), var(--glass-inner-shadow);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.glass-surface {
+		background-color: var(--glass-background);
+		-webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+		backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+	}
+}
+
+/* No backdrop support → use more opaque, flatter materials. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.glass-surface {
+		background-color: color-mix(in srgb, var(--page-background) 88%, white 12%);
+	}
+
+	.lg-dark .glass-surface {
+		background-color: #23252b;
+	}
+}
+
+/* User prefers less transparency → near-solid materials everywhere. */
+@media (prefers-reduced-transparency: reduce) {
+	.glass-surface,
+	.glass-header,
+	.glass-modal {
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+		background-color: var(--page-background) !important;
+	}
+}
+
+/* --------------------------------------------------------------------------
+ * 2. Cards & panels (L2)
+ * ------------------------------------------------------------------------ */
+.glass-card {
+	padding: var(--spacing-lg);
+	border-radius: var(--glass-radius-lg);
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-sm);
+	transition: transform var(--duration-base) var(--ease-out),
+	            box-shadow var(--duration-base) var(--ease-out),
+	            border-color var(--duration-base) var(--ease-out);
+}
+
+.glass-card > :last-child {
+	margin-bottom: 0;
+}
+
+.glass-card--hover:hover,
+a.glass-card:hover {
+	transform: translateY(-2px);
+	border-color: var(--glass-border-strong);
+	box-shadow: var(--glass-shadow-lg), var(--glass-inner-shadow);
+}
+
+/* Subtle specular sweep that follows hover — decorative only, motion-safe */
+.glass-card::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	background: linear-gradient(135deg,
+		color-mix(in srgb, var(--glass-highlight) 60%, transparent) 0%,
+		transparent 38%);
+	opacity: 0.55;
+	pointer-events: none;
+	transition: opacity var(--duration-slow) var(--ease-out);
+}
+
+.glass-card--hover:hover::before {
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.glass-card--hover:hover {
+		transform: none;
+	}
+}
+
+.glass-panel {
+	padding: clamp(var(--spacing-md), 3vw, var(--spacing-xl));
+	border-radius: var(--glass-radius-lg);
+}
+
+.glass-panel--strong {
+	background-color: var(--glass-background-strong);
+}
+
+/* --------------------------------------------------------------------------
+ * 3. Buttons (L3)
+ * ------------------------------------------------------------------------ */
+.glass-button,
+.wp-block-button__link,
+button,
+[type="submit"] {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5em;
+	min-height: 44px; /* WCAG 2.5.8 target size */
+	padding: 0.6em 1.4em;
+	border-radius: var(--glass-radius-pill);
+	border: 1px solid transparent;
+	font-size: var(--text-sm);
+	font-weight: 600;
+	letter-spacing: var(--tracking-label);
+	line-height: 1.2;
+	text-decoration: none;
+	cursor: pointer;
+	user-select: none;
+	transition: background-color var(--duration-fast) var(--ease-out),
+	            color var(--duration-fast) var(--ease-out),
+	            border-color var(--duration-fast) var(--ease-out),
+	            box-shadow var(--duration-fast) var(--ease-out),
+	            transform var(--duration-fast) var(--ease-out);
+}
+
+/* Primary — solid accent, maximum legibility, deliberately NOT glass */
+.btn-primary,
+.glass-button--primary {
+	background-color: var(--accent);
+	color: var(--accent-text);
+}
+
+.btn-primary:hover,
+.glass-button--primary:hover {
+	background-color: var(--accent-hover);
+	color: var(--accent-text);
+}
+
+.btn-primary:active,
+.glass-button--primary:active {
+	background-color: var(--accent-active);
+	transform: scale(0.985);
+}
+
+/* Secondary — restrained glass pill */
+.btn-secondary,
+.glass-button--secondary {
+	background-color: var(--glass-background-control);
+	border-color: var(--glass-border-strong);
+	color: var(--text-primary);
+	box-shadow: var(--glass-inner-shadow);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.btn-secondary,
+	.glass-button--secondary {
+		-webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(var(--glass-saturate));
+		backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(var(--glass-saturate));
+	}
+}
+
+.btn-secondary:hover,
+.glass-button--secondary:hover {
+	background-color: var(--glass-background-strong);
+	border-color: var(--glass-border-strong);
+	color: var(--text-primary);
+}
+
+/* Ghost */
+.btn-ghost,
+.glass-button--ghost {
+	background-color: transparent;
+	color: var(--accent);
+}
+
+.btn-ghost:hover,
+.glass-button--ghost:hover {
+	background-color: var(--accent-soft);
+	color: var(--accent);
+}
+
+/* Sizes */
+.btn-sm { min-height: 36px; padding: 0.4em 1em; font-size: var(--text-xs); }
+.btn-lg { min-height: 52px; padding: 0.75em 1.9em; font-size: var(--text-base); }
+
+/* Icon-only buttons get a square hit area */
+.lg-icon-button {
+	inline-size: 44px;
+	block-size: 44px;
+	min-height: 44px;
+	padding: 0;
+	border-radius: var(--glass-radius-pill);
+}
+
+.lg-icon-button svg {
+	inline-size: 20px;
+	block-size: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.btn-primary:active,
+	.glass-button--primary:active {
+		transform: none;
+	}
+}
+
+/* --------------------------------------------------------------------------
+ * 4. Controls / forms (L3)
+ * ------------------------------------------------------------------------ */
+.glass-control,
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="password"],
+input[type="search"],
+input[type="number"],
+input[type="tel"],
+select,
+textarea {
+	width: 100%;
+	min-height: 44px;
+	padding: 0.55em 0.9em;
+	background-color: var(--glass-background-control);
+	border: 1px solid var(--glass-border-strong);
+	border-radius: var(--glass-radius-sm);
+	color: var(--text-primary);
+	box-shadow: inset 0 1px 2px rgba(16, 24, 40, 0.04);
+	transition: border-color var(--duration-fast) var(--ease-out),
+	            box-shadow var(--duration-fast) var(--ease-out);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.glass-control,
+	input[type="text"], input[type="email"], input[type="url"], input[type="password"],
+	input[type="search"], input[type="number"], input[type="tel"], select, textarea {
+		-webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+		backdrop-filter: blur(calc(var(--glass-blur) * 0.5));
+	}
+}
+
+.glass-control:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+	outline: var(--focus-outline);
+	outline-offset: 1px;
+	box-shadow: var(--focus-ring);
+}
+
+textarea {
+	min-height: 8em;
+	resize: vertical;
+	line-height: var(--leading-normal);
+}
+
+label {
+	display: inline-block;
+	font-size: var(--text-sm);
+	font-weight: 600;
+	color: var(--text-secondary);
+	margin-bottom: 0.35em;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+	inline-size: 1.15em;
+	block-size: 1.15em;
+	width: auto;
+	min-height: 0;
+	accent-color: var(--accent);
+	margin-inline-end: 0.45em;
+}
+
+fieldset {
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius-md);
+	padding: var(--spacing-md);
+}
+
+legend {
+	font-weight: 650;
+	padding-inline: 0.4em;
+}
+
+.form-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--spacing-md);
+}
+
+.form-row > * {
+	flex: 1 1 220px;
+}
+
+.helptext,
+.description {
+	font-size: var(--text-xs);
+	color: var(--text-tertiary);
+	margin-top: 0.3em;
+}
+
+/* --------------------------------------------------------------------------
+ * 5. Header (L4) + Navigation
+ * ------------------------------------------------------------------------ */
+.site-header {
+	position: sticky;
+	top: 0;
+	z-index: 100;
+	padding-block: var(--spacing-sm);
+	transition: padding var(--duration-base) var(--ease-out);
+}
+
+/* Non-sticky option (Customizer: header_behavior = static) */
+.lg-header-static .site-header {
+	position: relative;
+}
+
+.glass-header {
+	--header-bg: var(--glass-background-strong);
+}
+
+.header-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--spacing-md);
+	min-height: calc(var(--header-height) - var(--spacing-sm) * 2);
+}
+
+/* The floating capsule inside the full-width bar */
+.header-capsule {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--spacing-md);
+	padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) var(--spacing-md);
+	border-radius: var(--glass-radius-pill);
+}
+
+.site-branding {
+	display: flex;
+	align-items: center;
+	gap: 0.6em;
+	text-decoration: none;
+	color: var(--text-primary);
+	font-weight: 700;
+	letter-spacing: var(--tracking-headline);
+	font-size: var(--text-md);
+}
+
+.site-branding img {
+	max-height: 34px;
+	width: auto;
+}
+
+.site-title {
+	margin: 0;
+	font-size: inherit;
+	line-height: 1;
+}
+
+.site-description {
+	display: block;
+	font-size: var(--text-xs);
+	font-weight: 400;
+	color: var(--text-tertiary);
+	letter-spacing: 0;
+}
+
+/* Full-width bar variant: blur strip edge to edge */
+.header-bar {
+	position: absolute;
+	inset: 0;
+	background-color: var(--header-bg);
+	border-bottom: 1px solid var(--glass-border);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.header-bar {
+		-webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+		backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+	}
+}
+
+.header-bar + .header-inner {
+	position: relative;
+}
+
+/* Scroll state (added by liquid-glass.js; CSS-only theme remains complete without it) */
+.site-header.is-scrolled .header-bar {
+	box-shadow: var(--glass-shadow);
+}
+
+/* ---- Menu ------------------------------------------------------------- */
+.main-navigation ul {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.25rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.main-navigation li {
+	position: relative;
+}
+
+.main-navigation a {
+	display: block;
+	padding: 0.5em 0.95em;
+	border-radius: var(--glass-radius-pill);
+	color: var(--text-primary);
+	font-size: var(--text-sm);
+	font-weight: 550;
+	text-decoration: none;
+	white-space: nowrap;
+	transition: background-color var(--duration-fast) var(--ease-out),
+	            color var(--duration-fast) var(--ease-out);
+}
+
+.main-navigation a:hover {
+	background-color: var(--accent-soft);
+	color: var(--accent);
+}
+
+.current-menu-item > a,
+.current_page_item > a,
+.current-menu-ancestor > a,
+.current-menu-parent > a {
+	background-color: var(--accent-soft);
+	color: var(--accent);
+	font-weight: 650;
+}
+
+/* Dropdowns (L4 overlay surface) */
+.main-navigation .sub-menu {
+	position: absolute;
+	top: calc(100% + 0.5rem);
+	inset-inline-start: 0;
+	min-width: 220px;
+	flex-direction: column;
+	gap: 2px;
+	padding: var(--spacing-xs);
+	border-radius: var(--glass-radius-md);
+	background-color: var(--glass-background-strong);
+	border: 1px solid var(--glass-border);
+	box-shadow: var(--glass-shadow-float), var(--glass-inner-shadow);
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(6px);
+	transition: opacity var(--duration-base) var(--ease-out),
+	            transform var(--duration-base) var(--ease-out),
+	            visibility 0s linear var(--duration-base);
+	z-index: 50;
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.main-navigation .sub-menu {
+		-webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+		backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+	}
+}
+
+.main-navigation li:hover > .sub-menu,
+.main-navigation li:focus-within > .sub-menu,
+.main-navigation li.lg-open > .sub-menu {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+	transition-delay: 0s;
+}
+
+.main-navigation .sub-menu a {
+	border-radius: var(--glass-radius-sm);
+	white-space: normal;
+}
+
+.main-navigation .menu-item-has-children > a::after,
+.main-navigation .page_item_has_children > a::after {
+	content: "";
+	display: inline-block;
+	width: 0.45em;
+	height: 0.45em;
+	margin-inline-start: 0.5em;
+	border-inline-end: 1.5px solid currentColor;
+	border-bottom: 1.5px solid currentColor;
+	transform: rotate(45deg) translateY(-2px);
+	opacity: 0.6;
+}
+
+.main-navigation .sub-menu .menu-item-has-children > a::after {
+	transform: rotate(-45deg);
+}
+
+/* Nested flyouts */
+.main-navigation .sub-menu .sub-menu {
+	top: -0.5rem;
+	inset-inline-start: calc(100% + 0.25rem);
+}
+
+/* Keyboard submenu toggle button (injected by nav.js) */
+.lg-submenu-toggle {
+	display: none;
+}
+
+/* ---- Mobile navigation -------------------------------------------------- */
+.menu-toggle {
+	display: none;
+	background-color: transparent;
+	border-color: transparent;
+	color: var(--text-primary);
+}
+
+.menu-toggle .icon-menu { display: block; }
+.menu-toggle .icon-close { display: none; }
+.menu-toggle[aria-expanded="true"] .icon-menu { display: none; }
+.menu-toggle[aria-expanded="true"] .icon-close { display: block; }
+
+.mobile-nav-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 90;
+	background: rgba(10, 12, 16, 0.35);
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity var(--duration-base) var(--ease-out),
+	            visibility 0s linear var(--duration-base);
+}
+
+body.has-mobile-nav .mobile-nav-overlay {
+	opacity: 1;
+	visibility: visible;
+	transition-delay: 0s;
+}
+
+@media (max-width: 781px) {
+	.menu-toggle {
+		display: inline-flex;
+	}
+
+	.main-navigation {
+		position: fixed;
+		top: 0;
+		bottom: 0;
+		inset-inline-end: 0;
+		width: min(84vw, 340px);
+		padding: calc(var(--header-height) + var(--spacing-lg)) var(--spacing-md) var(--spacing-lg);
+		background-color: var(--glass-background-strong);
+		border-inline-start: 1px solid var(--glass-border);
+		box-shadow: var(--glass-shadow-float);
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		transform: translateX(100%);
+		visibility: hidden;
+		transition: transform var(--duration-slow) var(--ease-out),
+		            visibility 0s linear var(--duration-slow);
+		z-index: 95;
+	}
+
+	.lg-force-light .main-navigation {
+		background-color: rgba(255, 255, 255, 0.94);
+	}
+
+	@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+		.main-navigation {
+			-webkit-backdrop-filter: blur(28px) saturate(180%);
+			backdrop-filter: blur(28px) saturate(180%);
+		}
+	}
+
+	body.has-mobile-nav .main-navigation {
+		transform: translateX(0);
+		visibility: visible;
+		transition-delay: 0s;
+	}
+
+	.main-navigation ul {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 2px;
+	}
+
+	.main-navigation a {
+		font-size: var(--text-md);
+		padding: 0.7em 0.9em;
+	}
+
+	/* Dropdowns become accordions in the drawer */
+	.main-navigation .sub-menu {
+		position: static;
+		opacity: 1;
+		visibility: visible;
+		transform: none;
+		box-shadow: none;
+		border: 0;
+		background: transparent;
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+		min-width: 0;
+		padding-inline-start: var(--spacing-md);
+		display: none;
+	}
+
+	.main-navigation li.lg-open > .sub-menu {
+		display: flex;
+	}
+
+	.main-navigation li:hover > .sub-menu {
+		display: none; /* cancel hover behaviour on touch */
+	}
+
+	.main-navigation li.lg-open:hover > .sub-menu {
+		display: flex;
+	}
+
+	/* Injected accordion toggles */
+	.lg-submenu-toggle {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		position: absolute;
+		inset-inline-end: 0;
+		top: 0.35em;
+		inline-size: 38px;
+		block-size: 38px;
+		min-height: 0;
+		padding: 0;
+		border: 0;
+		border-radius: var(--glass-radius-sm);
+		background: transparent;
+		color: var(--text-secondary);
+		cursor: pointer;
+	}
+
+	.lg-submenu-toggle::before {
+		content: "";
+		inline-size: 0.5em;
+		block-size: 0.5em;
+		border-inline-end: 2px solid currentColor;
+		border-bottom: 2px solid currentColor;
+		transform: rotate(45deg);
+		transition: transform var(--duration-fast) var(--ease-out);
+	}
+
+	.lg-submenu-toggle[aria-expanded="true"]::before {
+		transform: rotate(-135deg);
+	}
+
+	.main-navigation .menu-item-has-children > a::after,
+	.main-navigation .page_item_has_children > a::after {
+		content: none;
+	}
+
+	.main-navigation li {
+		width: 100%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.main-navigation,
+	.mobile-nav-overlay,
+	.main-navigation .sub-menu {
+		transition: none;
+	}
+}
+
+/* --------------------------------------------------------------------------
+ * 6. Header controls cluster (search + appearance toggle)
+ * ------------------------------------------------------------------------ */
+.lg-controls {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-xs);
+}
+
+.lg-search-field {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.lg-search-field .search-field {
+	inline-size: 170px;
+	padding-inline-start: 2.3em;
+	border-radius: var(--glass-radius-pill);
+	background-image: url("../icons/search.svg");
+	background-repeat: no-repeat;
+	background-position: 0.75em center;
+	background-size: 15px;
+	transition: inline-size var(--duration-base) var(--ease-out);
+}
+
+.lg-search-field .search-field:focus-visible {
+	inline-size: 230px;
+}
+
+.lg-search-field .search-submit {
+	display: none;
+}
+
+@media (max-width: 781px) {
+	.lg-search-field .search-field {
+		inline-size: 140px;
+	}
+}
+
+@media (max-width: 480px) {
+	.lg-search-field {
+		display: none; /* search stays available via the dedicated Search page pattern */
+	}
+}
+
+/* Appearance toggle icons */
+.lg-appearance-toggle .icon-auto { display: block; }
+.lg-appearance-toggle .icon-light,
+.lg-appearance-toggle .icon-dark { display: none; }
+.lg-appearance-toggle[data-state="light"] .icon-auto { display: none; }
+.lg-appearance-toggle[data-state="light"] .icon-light { display: block; }
+.lg-appearance-toggle[data-state="dark"] .icon-auto { display: none; }
+.lg-appearance-toggle[data-state="dark"] .icon-dark { display: block; }
+
+/* --------------------------------------------------------------------------
+ * 7. Alerts / notices
+ * ------------------------------------------------------------------------ */
+.lg-alert {
+	display: flex;
+	gap: var(--spacing-sm);
+	padding: var(--spacing-md) var(--spacing-lg);
+	border-radius: var(--glass-radius-md);
+	border: 1px solid var(--glass-border-strong);
+	background-color: var(--glass-background-strong);
+	color: var(--text-primary);
+	font-size: var(--text-sm);
+	box-shadow: var(--glass-inner-shadow);
+}
+
+.lg-alert p:last-child { margin-bottom: 0; }
+
+.lg-alert--info    { border-inline-start: 4px solid var(--info); }
+.lg-alert--success { border-inline-start: 4px solid var(--success); }
+.lg-alert--warning { border-inline-start: 4px solid var(--warning); }
+.lg-alert--danger,
+.lg-alert--error   { border-inline-start: 4px solid var(--danger); }
+
+/* WooCommerce / plugin notice compatibility hook (plain CSS, no preprocessor) */
+.woocommerce-message,
+.woocommerce-error,
+.woocommerce-info {
+	display: flex;
+	gap: var(--spacing-sm);
+	padding: var(--spacing-md) var(--spacing-lg);
+	border-radius: var(--glass-radius-md);
+	border: 1px solid var(--glass-border-strong);
+	background-color: var(--glass-background-strong);
+	color: var(--text-primary);
+	font-size: var(--text-sm);
+	box-shadow: var(--glass-inner-shadow);
+}
+
+/* --------------------------------------------------------------------------
+ * 8. Badges, chips, metadata
+ * ------------------------------------------------------------------------ */
+.lg-badge,
+.lg-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4em;
+	padding: 0.28em 0.8em;
+	border-radius: var(--glass-radius-pill);
+	background-color: var(--accent-soft);
+	color: var(--accent);
+	font-size: var(--text-xs);
+	font-weight: 650;
+	letter-spacing: var(--tracking-label);
+	text-decoration: none;
+	line-height: 1.4;
+}
+
+.lg-chip--neutral {
+	background-color: var(--glass-background-control);
+	color: var(--text-secondary);
+	border: 1px solid var(--glass-border);
+}
+
+.entry-meta,
+.byline,
+.updated,
+.comment-meta {
+	font-size: var(--text-sm);
+	color: var(--text-tertiary);
+}
+
+.entry-meta a {
+	color: var(--text-secondary);
+	text-decoration: none;
+}
+
+.entry-meta a:hover {
+	color: var(--accent);
+}
+
+.posted-on::after,
+.byline + .posted-on::after {
+	content: "·";
+	margin-inline: 0.5em;
+	color: var(--text-tertiary);
+}
+
+.cat-links a { margin-inline-end: 0.4em; }
+
+/* --------------------------------------------------------------------------
+ * 9. Breadcrumbs
+ * ------------------------------------------------------------------------ */
+.lg-breadcrumbs {
+	font-size: var(--text-sm);
+	color: var(--text-tertiary);
+	margin-block-end: var(--spacing-lg);
+}
+
+.lg-breadcrumbs ol {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4em;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.lg-breadcrumbs li:not(:last-child)::after {
+	content: "/";
+	margin-inline-start: 0.4em;
+	opacity: 0.5;
+}
+
+.lg-breadcrumbs a {
+	color: var(--text-secondary);
+	text-decoration: none;
+}
+
+.lg-breadcrumbs a:hover {
+	color: var(--accent);
+	text-decoration: underline;
+}
+
+.lg-breadcrumbs [aria-current="page"] {
+	color: var(--text-primary);
+	font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+ * 10. Pagination
+ * ------------------------------------------------------------------------ */
+.navigation.pagination,
+.lg-pagination {
+	margin-block: var(--spacing-xl);
+}
+
+.lg-pagination .nav-links,
+.navigation.pagination .nav-links {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: var(--spacing-xs);
+}
+
+.lg-pagination .page-numbers {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-inline-size: 44px;
+	min-block-size: 44px;
+	padding: 0.4em 0.9em;
+	border-radius: var(--glass-radius-pill);
+	border: 1px solid transparent;
+	font-size: var(--text-sm);
+	font-weight: 600;
+	color: var(--text-secondary);
+	text-decoration: none;
+	transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.lg-pagination a.page-numbers:hover {
+	background-color: var(--glass-background-control);
+	border-color: var(--glass-border);
+	color: var(--text-primary);
+}
+
+.lg-pagination .page-numbers.current {
+	background-color: var(--accent);
+	color: var(--accent-text);
+}
+
+.lg-pagination .page-numbers.dots {
+	border: 0;
+}
+
+/* --------------------------------------------------------------------------
+ * 11. Comments
+ * ------------------------------------------------------------------------ */
+.comments-area {
+	margin-block: var(--spacing-xl);
+}
+
+.comment-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-lg);
+}
+
+.comment-list .children {
+	list-style: none;
+	margin: var(--spacing-lg) 0 0;
+	padding-inline-start: clamp(var(--spacing-md), 4vw, var(--spacing-xl));
+	border-inline-start: 2px solid var(--glass-border);
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-lg);
+}
+
+.comment-body {
+	position: relative;
+	padding: var(--spacing-lg);
+	border-radius: var(--glass-radius-md);
+	background-color: var(--glass-background);
+	border: 1px solid var(--glass-border);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.comment-body {
+		-webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.6));
+		backdrop-filter: blur(calc(var(--glass-blur) * 0.6));
+	}
+}
+
+.comment-author {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-sm);
+	font-weight: 650;
+}
+
+.comment-author .avatar {
+	border-radius: 50%;
+	inline-size: 40px;
+	block-size: 40px;
+}
+
+.comment-metadata {
+	font-size: var(--text-xs);
+	color: var(--text-tertiary);
+	margin-block: 0.25em var(--spacing-sm);
+}
+
+.comment-metadata a { color: inherit; text-decoration: none; }
+.comment-metadata a:hover { text-decoration: underline; }
+
+.reply {
+	margin-top: var(--spacing-sm);
+}
+
+.reply .comment-reply-link {
+	min-height: 36px;
+	padding: 0.4em 1.1em;
+	font-size: var(--text-xs);
+}
+
+.bypostauthor > .comment-body {
+	outline: 1px solid var(--accent);
+	outline-offset: -1px;
+}
+
+.comment-form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-md);
+	max-width: 640px;
+}
+
+.comment-form p { margin: 0; }
+
+.comment-notes,
+.comment-form-cookies-consent label {
+	font-size: var(--text-sm);
+	color: var(--text-tertiary);
+}
+
+.required { color: var(--danger); }
+
+/* --------------------------------------------------------------------------
+ * 12. Author card & related posts
+ * ------------------------------------------------------------------------ */
+.lg-author-card {
+	display: flex;
+	gap: var(--spacing-lg);
+	align-items: flex-start;
+	padding: var(--spacing-lg);
+	margin-block: var(--spacing-xl);
+}
+
+.lg-author-card .avatar,
+.lg-author-card img {
+	border-radius: 50%;
+	inline-size: 64px;
+	block-size: 64px;
+	flex-shrink: 0;
+}
+
+.lg-author-card h3 { margin-block-end: 0.25em; font-size: var(--text-md); }
+.lg-author-card p { color: var(--text-secondary); font-size: var(--text-sm); }
+
+.lg-related {
+	margin-block: var(--spacing-2xl);
+}
+
+.lg-related__grid {
+	display: grid;
+	gap: var(--spacing-lg);
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+}
+
+/* --------------------------------------------------------------------------
+ * 13. Post cards (archive / query loop)
+ * ------------------------------------------------------------------------ */
+.lg-post-card {
+	overflow: hidden;
+	padding: 0;
+	gap: 0;
+}
+
+.lg-post-card .post-card__media,
+.lg-post-card > .wp-block-post-featured-image {
+	margin: 0;
+	border-radius: 0;
+	aspect-ratio: 16 / 10;
+	overflow: hidden;
+}
+
+.lg-post-card img {
+	inline-size: 100%;
+	block-size: 100%;
+	object-fit: cover;
+	transition: transform var(--duration-slow) var(--ease-out);
+}
+
+.lg-post-card--hover:hover img {
+	transform: scale(1.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lg-post-card--hover:hover img { transform: none; }
+}
+
+.lg-post-card .post-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-xs);
+	padding: var(--spacing-lg);
+}
+
+.lg-post-card .post-card__title {
+	font-size: var(--text-lg);
+	margin: 0;
+	line-height: var(--leading-snug);
+}
+
+.lg-post-card .post-card__excerpt {
+	font-size: var(--text-sm);
+	color: var(--text-secondary);
+}
+
+/* Card link treatment (query-loop wrapped cards) */
+.wp-block-post.has-parallax,
+a.glass-card {
+	color: inherit;
+	text-decoration: none;
+}
+
+/* --------------------------------------------------------------------------
+ * 14. Footer
+ * ------------------------------------------------------------------------ */
+.site-footer {
+	margin-top: var(--section-gap);
+	padding-block: var(--spacing-2xl) var(--spacing-xl);
+	border-top: 1px solid var(--glass-border);
+	background-color: var(--glass-background-subtle);
+	font-size: var(--text-sm);
+}
+
+.site-footer .widget-area {
+	display: grid;
+	gap: var(--spacing-xl);
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.site-footer h2,
+.site-footer .widget-title,
+.site-footer .wp-block-heading {
+	font-size: var(--text-sm);
+	font-weight: 700;
+	letter-spacing: var(--tracking-label);
+	text-transform: uppercase;
+	color: var(--text-tertiary);
+	margin-block-end: var(--spacing-sm);
+}
+
+.site-footer ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.45em;
+}
+
+.site-footer a {
+	color: var(--text-secondary);
+	text-decoration: none;
+}
+
+.site-footer a:hover {
+	color: var(--accent);
+	text-decoration: underline;
+}
+
+.lg-footer-bottom {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: var(--spacing-md);
+	margin-top: var(--spacing-xl);
+	padding-top: var(--spacing-lg);
+	border-top: 1px solid var(--glass-border);
+	color: var(--text-tertiary);
+	font-size: var(--text-xs);
+}
+
+/* --------------------------------------------------------------------------
+ * 15. Widgets (legacy sidebar areas)
+ * ------------------------------------------------------------------------ */
+.widget {
+	margin-block-end: var(--spacing-xl);
+	font-size: var(--text-sm);
+}
+
+.widget select {
+	max-width: 100%;
+}
+
+.widget ul {
+	padding-inline-start: 1.1em;
+}
+
+.widget a {
+	color: var(--text-secondary);
+	text-decoration: none;
+}
+
+.widget a:hover {
+	color: var(--accent);
+	text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+ * 16. Tables
+ * ------------------------------------------------------------------------ */
+table {
+	font-size: var(--text-sm);
+	line-height: var(--leading-normal);
+}
+
+th,
+td {
+	padding: 0.65em 0.9em;
+	text-align: start;
+	border-block-end: 1px solid var(--glass-border);
+}
+
+th {
+	font-weight: 650;
+	color: var(--text-secondary);
+}
+
+tr:nth-child(even) td {
+	background-color: var(--glass-background-subtle);
+}
+
+@media (max-width: 600px) {
+	.lg-table-scroll,
+	.entry-content > table {
+		display: block;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+}
+
+/* --------------------------------------------------------------------------
+ * 17. Modal / dialog (L5)
+ * ------------------------------------------------------------------------ */
+.lg-dialog {
+	border: 1px solid var(--glass-border-strong);
+	border-radius: var(--glass-radius-xl);
+	padding: var(--spacing-xl);
+	background-color: var(--glass-background-strong);
+	color: var(--text-primary);
+	box-shadow: var(--glass-shadow-float), var(--glass-inner-shadow);
+	max-inline-size: min(520px, calc(100vw - 2 * var(--gutter)));
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.lg-dialog {
+		-webkit-backdrop-filter: blur(28px) saturate(180%);
+		backdrop-filter: blur(28px) saturate(180%);
+	}
+}
+
+.lg-dialog::backdrop {
+	background: rgba(10, 12, 16, 0.45);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.lg-dialog::backdrop {
+		backdrop-filter: blur(6px);
+	}
+}
+
+/* --------------------------------------------------------------------------
+ * 18. Archive headers & hero surfaces
+ * ------------------------------------------------------------------------ */
+.lg-archive-header {
+	margin-block-end: var(--spacing-xl);
+}
+
+.lg-archive-header .archive-title {
+	margin-block-end: 0.25em;
+}
+
+.lg-archive-header .archive-description {
+	color: var(--text-secondary);
+	max-width: 65ch;
+}
+
+/* Search result highlight */
+mark,
+.search-results mark {
+	background: var(--accent-soft);
+	color: var(--accent);
+	padding: 0.05em 0.25em;
+	border-radius: 4px;
+}
+
+/* --------------------------------------------------------------------------
+ * 19. Media / iframe safety (plugin embeds, oEmbeds, maps, videos)
+ * ------------------------------------------------------------------------ */
+embed,
+iframe,
+object {
+	max-width: 100%;
+}
+
+.wp-block-embed__wrapper iframe {
+	inline-size: 100%;
+}
+
+/* Admin bar offset for the sticky header */
+.admin-bar .site-header {
+	top: 32px;
+}
+
+@media (max-width: 782px) {
+	.admin-bar .site-header {
+		top: 46px;
+	}
+}
+
+/* --------------------------------------------------------------------------
+ * 20. No-JavaScript fallback
+ *     <html class="no-js"> is swapped to "js" by an inline head script.
+ *     Without JS the mobile drawer cannot be toggled, so it renders as a
+ *     static expanded panel instead of a hidden drawer.
+ * ------------------------------------------------------------------------ */
+.no-js .menu-toggle,
+.no-js .mobile-nav-overlay {
+	display: none !important;
+}
+
+@media (max-width: 781px) {
+	.no-js .main-navigation {
+		position: static;
+		transform: none;
+		visibility: visible;
+		width: auto;
+		padding: var(--spacing-md) var(--gutter) var(--spacing-lg);
+		border: 0;
+		border-block-end: 1px solid var(--glass-border);
+		box-shadow: none;
+		background-color: var(--glass-background-strong);
+	}
+
+	.no-js .main-navigation .sub-menu {
+		display: flex;
+	}
+}
+
+/* Header search submit icon button (no glass chrome — it sits inside the field) */
+.lg-search-field button[type="submit"] {
+position: absolute;
+inset-inline-end: 4px;
+block-size: 36px;
+inline-size: 36px;
+min-height: 0;
+padding: 0;
+border: 0;
+border-radius: 50%;
+background: transparent;
+color: var(--text-secondary);
+}
+
+.lg-search-field button[type="submit"]:hover {
+background: var(--accent-soft);
+color: var(--accent);
+}
+
+.lg-search-field {
+position: relative;
+display: inline-flex;
+align-items: center;
+}
