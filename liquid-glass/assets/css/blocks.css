@@ -1,0 +1,605 @@
+/* ==========================================================================
+ * Liquid Glass — Core block styling (front end)
+ * --------------------------------------------------------------------------
+ * Scoped to .wp-block-* and template classes so plugin UIs are untouched.
+ * The goal: standard Gutenberg blocks feel native to the design system
+ * without breaking the editor.
+ * ========================================================================== */
+
+/* --------------------------------------------------------------------------
+ * 1. Layout containers & content widths
+ *    Templates place <PostContent> inside .entry-content; classic PHP
+ *    output uses the same class name.
+ * ------------------------------------------------------------------------ */
+.entry-content,
+.entry-summary {
+	font-size: var(--text-base);
+	line-height: var(--leading-relaxed);
+}
+
+.entry-content > * {
+	margin-block-start: 0;
+	margin-block-end: var(--spacing-lg);
+	max-width: var(--wp--style--global--content-size, var(--content-width));
+	margin-inline: auto;
+}
+
+.entry-content > .alignwide {
+	max-width: var(--wp--style--global--wide-size, var(--wide-width));
+}
+
+.entry-content > .alignfull {
+	max-width: none;
+	margin-inline: calc(50% - 50vw);
+	width: 100vw;
+	max-width: 100vw; /* guard: never wider than viewport */
+}
+
+.entry-content > .alignleft {
+	float: left;
+	margin: 0.3em var(--spacing-lg) var(--spacing-md) 0;
+	max-width: min(48%, 360px);
+}
+
+.entry-content > .alignright {
+	float: right;
+	margin: 0.3em 0 var(--spacing-md) var(--spacing-lg);
+	max-width: min(48%, 360px);
+}
+
+.entry-content > .aligncenter {
+	margin-inline: auto;
+}
+
+.entry-content::after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+@media (max-width: 600px) {
+	.entry-content > .alignleft,
+	.entry-content > .alignright {
+		float: none;
+		display: block;
+		margin-inline: auto;
+		max-width: 100%;
+	}
+}
+
+/* Group blocks used as glass sections in patterns */
+.is-layout-constrained > .alignwide {
+	max-width: var(--wide-width);
+}
+
+/* --------------------------------------------------------------------------
+ * 2. Typography blocks
+ * ------------------------------------------------------------------------ */
+.entry-content h2 { margin-block-start: 1.6em; }
+.entry-content h3,
+.entry-content h4,
+.entry-content h5,
+.entry-content h6 { margin-block-start: 1.4em; }
+
+.entry-content p a {
+	text-decoration: underline;
+}
+
+.has-text-align-center { margin-inline: auto; }
+
+/* Drop cap */
+.has-drop-cap:not(:focus)::first-letter {
+	font-size: 3.4em;
+	font-weight: 700;
+	line-height: 0.8;
+	margin-inline-end: 0.08em;
+	color: var(--accent);
+}
+
+/* Lists */
+.entry-content ul,
+.entry-content ol {
+	margin-block: 0 var(--spacing-lg);
+	padding-inline-start: 1.5em;
+}
+
+.entry-content li {
+	margin-block: 0.3em;
+}
+
+.entry-content li::marker {
+	color: var(--text-tertiary);
+}
+
+/* Tables */
+.wp-block-table {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.wp-block-table table {
+	min-width: 480px;
+	border-radius: var(--glass-radius-md);
+}
+
+.wp-block-table.is-style-stripes tbody tr:nth-child(odd) td {
+	background-color: var(--glass-background-subtle);
+}
+
+.wp-block-table figcaption,
+.wp-block-image figcaption,
+.wp-block-embed figcaption {
+	font-size: var(--text-xs);
+	color: var(--text-tertiary);
+	text-align: center;
+	margin-block-start: 0.6em;
+}
+
+/* --------------------------------------------------------------------------
+ * 3. Media blocks
+ * ------------------------------------------------------------------------ */
+.wp-block-image img {
+	border-radius: var(--glass-radius-md);
+}
+
+.wp-block-image.alignfull img,
+.wp-block-cover,
+.wp-block-media-text.is-stacked-on-mobile {
+	border-radius: 0;
+}
+
+/* Gallery */
+.wp-block-gallery {
+	gap: var(--spacing-sm) !important;
+	margin: 0 0 var(--spacing-lg);
+}
+
+.wp-block-gallery .blocks-gallery-item img {
+	border-radius: var(--glass-radius-md);
+}
+
+/* Cover — restrained scrim so text stays AA over any photo */
+.wp-block-cover,
+.wp-block-cover-image {
+	border-radius: var(--glass-radius-xl);
+	overflow: hidden;
+	min-height: 340px;
+}
+
+.wp-block-cover.has-background-dim:not([class*="-gradient"])::before {
+	background-color: rgba(10, 12, 16, 0.55);
+}
+
+.wp-block-cover .wp-block-cover__inner-container {
+	width: min(100% - (var(--gutter) * 2), var(--wide-width));
+	padding-block: var(--spacing-xl);
+}
+
+.wp-block-cover h1:not(.has-text-color),
+.wp-block-cover h2:not(.has-text-color),
+.wp-block-cover p:not(.has-text-color) {
+	color: #fff;
+}
+
+@media (max-width: 600px) {
+	.wp-block-cover,
+	.wp-block-cover-image {
+		border-radius: var(--glass-radius-lg);
+		min-height: 280px;
+	}
+}
+
+/* Media & Text */
+.wp-block-media-text {
+	--media-text-gap: clamp(var(--spacing-md), 4vw, var(--spacing-2xl));
+}
+
+.wp-block-media-text .wp-block-media-text__content {
+	padding: 0;
+}
+
+.wp-block-media-text__media img {
+	border-radius: var(--glass-radius-lg);
+}
+
+@media (max-width: 600px) {
+	.wp-block-media-text.is-stacked-on-mobile .wp-block-media-text__content {
+		padding-block-start: var(--spacing-lg);
+	}
+}
+
+/* --------------------------------------------------------------------------
+ * 4. Structural blocks
+ * ------------------------------------------------------------------------ */
+.wp-block-columns {
+	gap: clamp(var(--spacing-md), 3vw, var(--spacing-xl)) !important;
+}
+
+.wp-block-column {
+	min-width: 0; /* prevent flex overflow with long words */
+}
+
+@media (max-width: 781px) {
+	.wp-block-columns:not(.is-not-stacked-on-mobile) > .wp-block-column {
+		flex-basis: 100% !important;
+	}
+}
+
+/* Separator */
+.wp-block-separator {
+	border: 0;
+	border-top: 1px solid var(--glass-border-strong);
+	max-width: var(--content-width);
+	margin-block: var(--spacing-xl);
+	opacity: 1;
+}
+
+.wp-block-separator.is-style-wide {
+	max-width: var(--wide-width);
+}
+
+.wp-block-separator.is-style-dots::before {
+	color: var(--text-tertiary);
+	font-size: var(--text-md);
+}
+
+/* Spacer handled natively; nothing needed. */
+
+/* Buttons block */
+.wp-block-buttons {
+	gap: var(--spacing-sm);
+}
+
+.wp-block-button__link {
+	background-color: var(--accent);
+	color: var(--accent-text);
+	border-radius: var(--glass-radius-pill);
+	font-weight: 600;
+	box-shadow: none;
+}
+
+.wp-block-button__link:hover {
+	background-color: var(--accent-hover);
+	color: var(--accent-text);
+}
+
+.is-style-outline > .wp-block-button__link:not(.has-text-color),
+.wp-block-button__link.is-style-outline {
+	background-color: transparent;
+	color: var(--accent);
+	border: 1.5px solid currentColor;
+}
+
+.is-style-outline > .wp-block-button__link:hover {
+	background-color: var(--accent-soft);
+}
+
+/* Quote / Pullquote — restrained glass surfaces */
+.wp-block-quote {
+	position: relative;
+	margin-block: var(--spacing-xl);
+	padding: var(--spacing-lg) var(--spacing-xl);
+	border-inline-start: 4px solid var(--accent);
+	border-radius: 0 var(--glass-radius-md) var(--glass-radius-md) 0;
+	background-color: var(--glass-background-subtle);
+	color: var(--text-primary);
+	font-style: normal;
+}
+
+.wp-block-quote cite {
+	font-style: normal;
+	font-size: var(--text-sm);
+	color: var(--text-tertiary);
+	margin-top: var(--spacing-xs);
+}
+
+.wp-block-quote.has-text-align-center {
+	border-inline-start: 0;
+	border-block-start: 4px solid var(--accent);
+	border-radius: var(--glass-radius-md);
+}
+
+.wp-block-pullquote {
+	border-block: 1px solid var(--glass-border-strong);
+	padding: var(--spacing-xl) 0;
+}
+
+.wp-block-pullquote blockquote {
+	border: 0;
+	padding: 0;
+	margin: 0;
+	background: none;
+	font-style: normal;
+}
+
+.wp-block-pullquote p {
+	font-size: var(--text-xl) !important;
+	line-height: var(--leading-snug);
+	letter-spacing: var(--tracking-headline);
+	max-width: 24ch;
+	margin-inline: auto;
+}
+
+/* Verse / Preformatted / Code */
+.wp-block-code,
+pre.wp-block-preformatted {
+	background-color: var(--glass-background-strong);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius-md);
+	padding: var(--spacing-lg);
+	font-size: var(--text-sm);
+	box-shadow: var(--glass-inner-shadow);
+}
+
+/* --------------------------------------------------------------------------
+ * 5. Query loop / post blocks (blog experience)
+ * ------------------------------------------------------------------------ */
+.lg-query-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+	gap: var(--spacing-lg);
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.lg-query-grid--featured {
+	grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+	.lg-query-grid--featured {
+		grid-template-columns: 1.4fr 1fr;
+	}
+}
+
+.wp-block-post-template {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 var(--spacing-xl);
+}
+
+/* Featured post treatment inside archives */
+.lg-post-card--featured .post-card__title {
+	font-size: var(--text-2xl);
+}
+
+/* Post terms / meta */
+.wp-block-post-terms,
+.wp-block-post-date,
+.wp-block-post-author,
+.wp-block-post-comments-link {
+	font-size: var(--text-sm);
+	color: var(--text-tertiary);
+}
+
+.wp-block-post-terms__separator {
+	margin-inline: 0.35em;
+	opacity: 0.5;
+}
+
+/* Read-more */
+.wp-block-read-more {
+	font-weight: 600;
+	text-decoration: none !important;
+}
+
+.wp-block-read-more::after {
+	content: "→";
+	margin-inline-start: 0.35em;
+	display: inline-block;
+	transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.wp-block-read-more:hover::after {
+	transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wp-block-read-more:hover::after { transform: none; }
+}
+
+/* Latest posts widget/block */
+.wp-block-latest-posts {
+	list-style: none;
+	padding: 0;
+}
+
+.wp-block-latest-posts > li {
+	padding-block: var(--spacing-sm);
+	border-block-end: 1px solid var(--glass-border);
+}
+
+.wp-block-latest-posts > li:last-child {
+	border-block-end: 0;
+}
+
+.wp-block-latest-posts__post-title {
+	font-weight: 650;
+}
+
+.wp-block-latest-posts__post-date {
+	font-size: var(--text-xs);
+	color: var(--text-tertiary);
+	display: block;
+	margin-top: 0.2em;
+}
+
+/* --------------------------------------------------------------------------
+ * 6. Navigation block (Site Editor users get styled nav too)
+ * ------------------------------------------------------------------------ */
+.wp-block-navigation__responsive-container-open:not(.always-on) {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	inline-size: 44px;
+	block-size: 44px;
+	border-radius: var(--glass-radius-pill);
+	color: var(--text-primary);
+	background: transparent;
+	border: 1px solid var(--glass-border);
+}
+
+.wp-block-navigation__responsive-container:not(.hidden-by-small):not(.is-menu-open) {
+	position: static;
+}
+
+.wp-block-navigation__responsive-container.is-menu-open {
+	background-color: var(--page-background);
+	padding: calc(var(--header-height) + var(--spacing-lg)) var(--gutter) var(--spacing-xl);
+}
+
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-content {
+	padding: 0;
+}
+
+/* Search block */
+.wp-block-search__input {
+	border-radius: var(--glass-radius-pill);
+	background-color: var(--glass-background-control);
+	border: 1px solid var(--glass-border-strong);
+	padding: 0.55em 1em;
+	min-height: 44px;
+}
+
+.wp-block-search__button {
+	border-radius: var(--glass-radius-pill);
+	background-color: var(--accent);
+	color: var(--accent-text);
+	border: 0;
+	padding: 0.55em 1.2em;
+	min-height: 44px;
+	font-weight: 600;
+}
+
+.wp-block-search__inside-wrapper {
+	gap: var(--spacing-xs);
+}
+
+/* Social icons */
+.wp-block-social-links {
+	gap: var(--spacing-xs);
+	padding: 0;
+	list-style: none;
+}
+
+.wp-block-social-link {
+	background-color: var(--glass-background-control);
+	border: 1px solid var(--glass-border);
+}
+
+/* Archival / embed fallbacks */
+.wp-block-archives-list,
+.wp-block-categories-list {
+	list-style: none;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.4em;
+}
+
+/* File block */
+.wp-block-file {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--spacing-sm);
+}
+
+.wp-block-file__button {
+	border-radius: var(--glass-radius-pill);
+	background-color: var(--accent);
+	color: var(--accent-text);
+	padding: 0.55em 1.3em;
+	min-height: 44px;
+	text-decoration: none;
+	font-weight: 600;
+	display: inline-flex;
+	align-items: center;
+}
+
+/* Column group cards used by patterns */
+.lg-feature-card {
+	padding: var(--spacing-lg);
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-sm);
+}
+
+.lg-feature-card .lg-icon {
+	inline-size: 40px;
+	block-size: 40px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--glass-radius-sm);
+	background-color: var(--accent-soft);
+	color: var(--accent);
+	margin-block-end: var(--spacing-xs);
+}
+
+.lg-feature-card .lg-icon svg {
+	inline-size: 22px;
+	block-size: 22px;
+}
+
+/* Pricing columns (pattern support) */
+.lg-pricing {
+	gap: var(--spacing-lg);
+	align-items: stretch;
+}
+
+.lg-pricing .lg-price {
+	font-size: var(--text-3xl);
+	font-weight: 700;
+	letter-spacing: var(--tracking-display);
+	line-height: 1;
+	margin: var(--spacing-xs) 0;
+}
+
+.lg-pricing .lg-price small {
+	font-size: var(--text-sm);
+	font-weight: 500;
+	color: var(--text-tertiary);
+}
+
+.lg-pricing .lg-plan-features {
+	list-style: none;
+	padding: 0;
+	margin: var(--spacing-md) 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.55em;
+	font-size: var(--text-sm);
+	color: var(--text-secondary);
+}
+
+.lg-pricing .lg-plan-features li::before {
+	content: "✓";
+	color: var(--accent);
+	font-weight: 700;
+	margin-inline-end: 0.55em;
+}
+
+.lg-pricing .is-featured {
+	outline: 2px solid var(--accent);
+	outline-offset: -1px;
+}
+
+/* Newsletter pattern */
+.lg-newsletter form {
+	display: flex;
+	gap: var(--spacing-sm);
+	flex-wrap: wrap;
+}
+
+.lg-newsletter input[type="email"] {
+	flex: 1 1 240px;
+}
+
+@media (max-width: 480px) {
+	.lg-newsletter form {
+		flex-direction: column;
+	}
+}
