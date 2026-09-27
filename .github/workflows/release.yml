@@ -1,0 +1,47 @@
+name: Release theme zip
+
+# Builds liquid-glass.zip (a WordPress-installable theme archive) and attaches
+# it to GitHub Releases. After this runs, users can download the asset from
+# https://github.com/<owner>/<repo>/releases and upload it directly in
+# wp-admin under Appearance -> Themes -> Add New -> Upload Theme.
+
+on:
+  push:
+    tags:
+      - 'v*'        # e.g. v1.0.0 — creates/updates a Release with the zip asset
+  workflow_dispatch: {}   # manual run — builds an artifact you can download below
+
+permissions:
+  contents: write
+
+jobs:
+  build-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build liquid-glass.zip
+        run: bash bin/build-zip.sh "${RUNNER_TEMP}/liquid-glass.zip"
+
+      - name: Verify archive layout
+        run: |
+          unzip -l "${RUNNER_TEMP}/liquid-glass.zip"
+          unzip -l "${RUNNER_TEMP}/liquid-glass.zip" | grep -q ' liquid-glass/style.css'
+          if unzip -l "${RUNNER_TEMP}/liquid-glass.zip" | grep -E '\.github|bin/build-zip'; then
+            echo "ERROR: dev files leaked into the theme zip"; exit 1
+          fi
+
+      - name: Upload artifact (manual runs)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: liquid-glass-zip
+          path: ${{ runner.temp }}/liquid-glass.zip
+
+      - name: Create / update release with the zip attached
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ runner.temp }}/liquid-glass.zip
+          generate_release_notes: true

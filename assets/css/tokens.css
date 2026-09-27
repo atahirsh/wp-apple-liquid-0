@@ -1,0 +1,272 @@
+/* ==========================================================================
+ * Liquid Glass — Design Tokens
+ * --------------------------------------------------------------------------
+ * Single source of truth for the entire visual identity. Changing a value
+ * here (or overriding it in a child theme / Additional CSS) re-themes the
+ * whole site. Values marked with (TJ) are also declared in theme.json so
+ * that the editor palette/typography stays in sync.
+ * ========================================================================== */
+
+:root {
+
+	/* --------------------------------------------------------------
+	 * Layer model (material + depth + light + translucency)
+	 *   L0 page background · L1 ambient illumination · L2 content
+	 *   surfaces · L3 floating controls · L4 navigation overlays
+	 *   L5 modal/dialog surfaces
+	 * -------------------------------------------------------------- */
+
+	/* L0 — Page background (TJ: base) */
+	--page-background: #f2f3f6;
+	--page-background-image: none;
+
+	/* Text ramp (TJ: base / secondary / tertiary) */
+	--text-primary: #1c1c1e;     /* ~15.9:1 on --page-background  → AAA */
+	--text-secondary: #55555c;   /* ~7.0:1                        → AAA */
+	--text-tertiary: #6e6e76;    /* ~4.9:1                        → AA  */
+	--text-inverse: #f5f5f7;
+
+	/* Accent (TJ: accent). Overridden by the Customizer color control. */
+	--accent: #0071e3;           /* 5.17:1 white-on-accent        → AA  */
+	--accent-hover: #0077ed;
+	--accent-active: #0062c4;
+	--accent-soft: rgba(0, 113, 227, 0.1);
+	--accent-text: #ffffff;      /* text placed ON accent fills   */
+
+	/* Semantic states (AA contrast as solid fills with --accent-text) */
+	--success: #1a7f37;
+	--warning: #7a5b00;
+	--danger: #b3261e;
+	--info: var(--accent);
+
+	/* Focus ring (never relies on glass; always a solid outline) */
+	--focus-ring: 0 0 0 3px rgba(0, 113, 227, 0.4);
+	--focus-outline: 2px solid var(--accent);
+	--focus-offset: 2px;
+
+	/* --------------------------------------------------------------
+	 * Glass materials — LIGHT
+	 * Opacities are tuned so that body text over any surface keeps
+	 * >= 4.5:1 contrast even without backdrop-filter support.
+	 * -------------------------------------------------------------- */
+	--glass-blur: 20px;
+	--glass-saturate: 180%;
+
+	--glass-background: rgba(255, 255, 255, 0.72);         /* L2 */
+	--glass-background-strong: rgba(255, 255, 255, 0.88);  /* L4/L5 */
+	--glass-background-subtle: rgba(255, 255, 255, 0.5);   /* decorative */
+	--glass-background-control: rgba(255, 255, 255, 0.62); /* L3 inputs/buttons */
+
+	--glass-border: rgba(0, 0, 0, 0.08);
+	--glass-border-strong: rgba(0, 0, 0, 0.14);
+	--glass-highlight: rgba(255, 255, 255, 0.85);          /* top-edge specular line */
+	--glass-inner-shadow: inset 0 1px 0 var(--glass-highlight);
+
+	--glass-shadow: 0 1px 2px rgba(16, 24, 40, 0.04),
+	                0 8px 24px rgba(16, 24, 40, 0.08);
+	--glass-shadow-lg: 0 2px 4px rgba(16, 24, 40, 0.05),
+	                   0 16px 48px rgba(16, 24, 40, 0.14);
+	--glass-shadow-float: 0 4px 12px rgba(16, 24, 40, 0.08),
+	                      0 24px 64px rgba(16, 24, 40, 0.18);
+
+	/* L1 — Ambient illumination (very restrained, no neon) */
+	--ambient-a: rgba(0, 113, 227, 0.07);
+	--ambient-b: rgba(118, 75, 162, 0.05);
+	--ambient-c: rgba(10, 132, 122, 0.04);
+
+	/* --------------------------------------------------------------
+	 * Radii
+	 * -------------------------------------------------------------- */
+	--glass-radius-sm: 10px;   /* TJ: radius.sm  — controls */
+	--glass-radius-md: 14px;   /* TJ: radius.md  — cards, fields */
+	--glass-radius-lg: 20px;   /* TJ: radius.lg  — panels, groups */
+	--glass-radius-xl: 28px;   /* TJ: radius.xl  — hero, modals */
+	--glass-radius-pill: 999px;
+
+	/* --------------------------------------------------------------
+	 * Spacing scale (TJ: small … xx-large)
+	 * -------------------------------------------------------------- */
+	--spacing-xs: 0.5rem;    /* 8px  */
+	--spacing-sm: 0.75rem;   /* 12px */
+	--spacing-md: 1rem;      /* 16px */
+	--spacing-lg: 1.5rem;    /* 24px */
+	--spacing-xl: 2.5rem;    /* 40px */
+	--spacing-2xl: 4rem;     /* 64px */
+	--section-gap: clamp(3rem, 7vw, 6rem);
+
+	/* --------------------------------------------------------------
+	 * Layout widths (TJ: contentSize 720 / wideSize 1200)
+	 * -------------------------------------------------------------- */
+	--content-width: 720px;
+	--wide-width: 1200px;
+	--gutter: clamp(1.25rem, 4vw, 2.5rem);
+	--header-height: 64px;
+
+	/* --------------------------------------------------------------
+	 * Typography (system stack — SF Pro when present, never loaded)
+	 * -------------------------------------------------------------- */
+	--font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+	             "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif,
+	             "Apple Color Emoji", "Segoe UI Emoji";
+	--font-mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+
+	--text-xs: 0.75rem;    /* 12px */
+	--text-sm: 0.875rem;   /* 14px */
+	--text-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem); /* 16→17px */
+	--text-md: clamp(1.125rem, 1.06rem + 0.3vw, 1.25rem); /* 18→20px */
+	--text-lg: clamp(1.3rem, 1.18rem + 0.6vw, 1.625rem);  /* heading-4 */
+	--text-xl: clamp(1.55rem, 1.35rem + 1vw, 2rem);       /* h3 / heading-3 */
+	--text-2xl: clamp(1.9rem, 1.55rem + 1.8vw, 2.6rem);   /* h2 / heading-2 */
+	--text-3xl: clamp(2.3rem, 1.7rem + 3vw, 3.5rem);      /* h1 / heading-1 */
+	--text-4xl: clamp(2.75rem, 1.8rem + 4.8vw, 4.75rem);  /* hero display */
+
+	--leading-tight: 1.1;
+	--leading-snug: 1.25;
+	--leading-normal: 1.6;
+	--leading-relaxed: 1.75;
+
+	--tracking-display: -0.02em;
+	--tracking-headline: -0.015em;
+	--tracking-label: 0.02em;
+
+	/* Motion */
+	--duration-fast: 120ms;
+	--duration-base: 200ms;
+	--duration-slow: 320ms;
+	--ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-in-out: cubic-bezier(0.45, 0, 0.15, 1);
+}
+
+/* ==========================================================================
+ * DARK MODE — automatic (prefers-color-scheme)
+ * Not an inversion: heavier, cooler materials, deeper shadows that read as
+ * elevation via rim-light instead of drop shadow.
+ * ========================================================================== */
+@media (prefers-color-scheme: dark) {
+	:root:not(.lg-force-light) {
+		--page-background: #16171a;
+		--text-primary: #f5f5f7;     /* 15.6:1 → AAA */
+		--text-secondary: #b9b9c1;   /* 8.6:1  → AAA */
+		--text-tertiary: #94949d;    /* 5.4:1  → AA  */
+		--text-inverse: #1c1c1e;
+
+		--accent: #3e9bff;           /* 5.9:1 against #16171a */
+		--accent-hover: #5aa8ff;
+		--accent-active: #2f8aef;
+		--accent-soft: rgba(62, 155, 255, 0.16);
+		--accent-text: #06121f;      /* dark ink on bright accent fills */
+
+		--success: #4ade80;
+		--warning: #fbbf24;
+		--danger: #ff6961;
+		--focus-ring: 0 0 0 3px rgba(62, 155, 255, 0.45);
+
+		--glass-background: rgba(38, 40, 46, 0.72);
+		--glass-background-strong: rgba(30, 32, 37, 0.9);
+		--glass-background-subtle: rgba(255, 255, 255, 0.05);
+		--glass-background-control: rgba(56, 59, 66, 0.66);
+
+		--glass-border: rgba(255, 255, 255, 0.1);
+		--glass-border-strong: rgba(255, 255, 255, 0.18);
+		--glass-highlight: rgba(255, 255, 255, 0.14);
+
+		--glass-shadow: 0 1px 2px rgba(0, 0, 0, 0.4),
+		                0 8px 24px rgba(0, 0, 0, 0.45);
+		--glass-shadow-lg: 0 2px 4px rgba(0, 0, 0, 0.45),
+		                   0 16px 48px rgba(0, 0, 0, 0.55);
+		--glass-shadow-float: 0 4px 12px rgba(0, 0, 0, 0.5),
+		                      0 24px 64px rgba(0, 0, 0, 0.65);
+
+		--ambient-a: rgba(62, 155, 255, 0.1);
+		--ambient-b: rgba(147, 90, 200, 0.07);
+		--ambient-c: rgba(30, 160, 150, 0.05);
+	}
+}
+
+/* Manual override classes (applied to <html> by the appearance toggle).
+   Declared outside the media query so they win in either direction. */
+.lg-dark {
+	color-scheme: dark;
+	--page-background: #16171a;
+	--text-primary: #f5f5f7;
+	--text-secondary: #b9b9c1;
+	--text-tertiary: #94949d;
+	--text-inverse: #1c1c1e;
+
+	--accent: #3e9bff;
+	--accent-hover: #5aa8ff;
+	--accent-active: #2f8aef;
+	--accent-soft: rgba(62, 155, 255, 0.16);
+	--accent-text: #06121f;
+
+	--success: #4ade80;
+	--warning: #fbbf24;
+	--danger: #ff6961;
+	--focus-ring: 0 0 0 3px rgba(62, 155, 255, 0.45);
+
+	--glass-background: rgba(38, 40, 46, 0.72);
+	--glass-background-strong: rgba(30, 32, 37, 0.9);
+	--glass-background-subtle: rgba(255, 255, 255, 0.05);
+	--glass-background-control: rgba(56, 59, 66, 0.66);
+
+	--glass-border: rgba(255, 255, 255, 0.1);
+	--glass-border-strong: rgba(255, 255, 255, 0.18);
+	--glass-highlight: rgba(255, 255, 255, 0.14);
+
+	--glass-shadow: 0 1px 2px rgba(0, 0, 0, 0.4),
+	                0 8px 24px rgba(0, 0, 0, 0.45);
+	--glass-shadow-lg: 0 2px 4px rgba(0, 0, 0, 0.45),
+	                   0 16px 48px rgba(0, 0, 0, 0.55);
+	--glass-shadow-float: 0 4px 12px rgba(0, 0, 0, 0.5),
+	                      0 24px 64px rgba(0, 0, 0, 0.65);
+
+	--ambient-a: rgba(62, 155, 255, 0.1);
+	--ambient-b: rgba(147, 90, 200, 0.07);
+	--ambient-c: rgba(30, 160, 150, 0.05);
+}
+
+/* Force-light overrides every automatic dark treatment. */
+.lg-force-light {
+	color-scheme: light;
+	--page-background: #f2f3f6;
+	--text-primary: #1c1c1e;
+	--text-secondary: #55555c;
+	--text-tertiary: #6e6e76;
+	--text-inverse: #f5f5f7;
+
+	--accent: #0071e3;
+	--accent-hover: #0077ed;
+	--accent-active: #0062c4;
+	--accent-soft: rgba(0, 113, 227, 0.1);
+	--accent-text: #ffffff;
+
+	--success: #1a7f37;
+	--warning: #7a5b00;
+	--danger: #b3261e;
+	--focus-ring: 0 0 0 3px rgba(0, 113, 227, 0.4);
+
+	--glass-background: rgba(255, 255, 255, 0.72);
+	--glass-background-strong: rgba(255, 255, 255, 0.88);
+	--glass-background-subtle: rgba(255, 255, 255, 0.5);
+	--glass-background-control: rgba(255, 255, 255, 0.62);
+
+	--glass-border: rgba(0, 0, 0, 0.08);
+	--glass-border-strong: rgba(0, 0, 0, 0.14);
+	--glass-highlight: rgba(255, 255, 255, 0.85);
+
+	--glass-shadow: 0 1px 2px rgba(16, 24, 40, 0.04),
+	                0 8px 24px rgba(16, 24, 40, 0.08);
+	--glass-shadow-lg: 0 2px 4px rgba(16, 24, 40, 0.05),
+	                   0 16px 48px rgba(16, 24, 40, 0.14);
+	--glass-shadow-float: 0 4px 12px rgba(16, 24, 40, 0.08),
+	                      0 24px 64px rgba(16, 24, 40, 0.18);
+
+	--ambient-a: rgba(0, 113, 227, 0.07);
+	--ambient-b: rgba(118, 75, 162, 0.05);
+	--ambient-c: rgba(10, 132, 122, 0.04);
+}
+
+/* Respect the OS setting when the user has not chosen manually. */
+:root:not(.lg-dark):not(.lg-force-light) {
+	color-scheme: light dark;
+}

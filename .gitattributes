@@ -1,0 +1,17 @@
+# Ensure GitHub's auto-generated "Source code (zip/tar.gz)" archives and any
+# `git archive` export contain ONLY the installable WordPress theme files.
+# Everything is exported by default; development-only files are excluded here.
+
+/.gitattributes export-ignore
+/.github        export-ignore
+/bin            export-ignore
+
+# Normalize line endings for text files in the repository and archives.
+*.css  text eol=lf
+*.js   text eol=lf
+*.json text eol=lf
+*.php  text eol=lf
+*.md   text eol=lf
+*.svg  text eol=lf
+*.yml  text eol=lf
+*.png  binary
